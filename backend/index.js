@@ -1,30 +1,32 @@
 import express from "express";
-const app = express();
-const port = 2000;
-//  import img from './assets/gpay';
 import Tesseract from 'tesseract.js';
 import multer from 'multer';
 import { dirname } from "path";
 import { fileURLToPath } from "url";
 //import bodyParser from "body-parser";
-import { S3Client, PutObjectCommand } from "@aws-sdk/client-s3";
+import { S3Client, PutObjectCommand,GetObjectCommand } from "@aws-sdk/client-s3";
 import dotenv from 'dotenv';
+import { getSignedUrl } from "@aws-sdk/s3-request-presigner"
+//import {PrismaClient} from "@prisma/client";
+import crypto from 'crypto';
 dotenv.config();
+
+const app = express();
+//const prisma=new PrismaClient();
+const port = 2000;
 
 const bucketName=process.env.BUCKET_NAME
 const bucketRegion=process.env.BUCKET_REGION
 const accessKey=process.env.ACCESS_KEY
 const secretAccesskey=process.env.SECRET_ACCESS_KEY
 
+const randomImageName= (bytes=32)=> crypto.randomBytes(bytes).toString('hex');
 const s3= new S3Client({
   region: bucketRegion,
   credentials:{
     accessKeyId:accessKey,
     secretAccessKey: secretAccesskey,
-  },
-  
-  
-})
+  }})
 
 const storage = multer.memoryStorage()
 const upload = multer({ storage: storage })
@@ -37,20 +39,62 @@ app.get("/upload", async(req,res)=>{
 })
 
 app.post("/upload/offline",upload.single('image'),async(req,res)=>{
-   console.log("req.body: ", req.body);
-   console.log("req.file: ", req.file);
-   req.file.buffer
+   
+  console.log("req.body: ", req.body);
+  console.log("req.file: ", req.file);
+  req.file.buffer
+  const imageName= randomImageName();
   const params={
     Bucket:bucketName,
-    Key: req.file.originalname,
+    Key: imageName,
     Body: req.file.buffer,
     ContentType: req.file.mimetype,
   }
   const command= new PutObjectCommand(params);
   await s3.send(command)
-  res.send({})
+  const imageUrl = `https://s3-${bucketRegion}.amazonaws.com/${bucketName}/${accessKey}`;
+
+  console.log(imageUrl);
+
+  res.send(imageUrl)
 })
 
+app.post("/upload/online", upload.single("image"), async (req, res) => {
+  try {
+    console.log("req.body: ", req.body);
+    console.log("req.file: ", req.file);
+
+    if (!req.file) {
+      return res.status(400).send("No file uploaded.");
+    }
+
+    const imageName = randomImageName();
+    const params = {
+      Bucket: bucketName,
+      Key: imageName,
+      Body: req.file.buffer,
+      ContentType: req.file.mimetype,
+    };
+
+    const command = new PutObjectCommand(params);
+    await s3.send(command);
+
+    const imageUrl = `https://s3-${bucketRegion}.amazonaws.com/${params.Bucket}/${params.Key}`;
+    console.log(imageUrl);
+
+    res.status(200).send(imageUrl);
+  } catch (error) {
+    console.error("Error uploading image:", error);
+    res.status(500).send("Error uploading image.");
+  }
+});
+
+app.get("/upload/catagorise",async(req,res)=>{
+
+  const command = new GetObjectCommand("25839d4870a3245eb5f6477d89f917723b060f14b29e7aa20defe7710456f9bc");
+  const url = await getSignedUrl(s3, command, { expiresIn: 3600 });
+  console.log(url);
+} )
 function isInteger(str) {
     // Use parseInt() to attempt conversion
     const integer = parseInt(str);
@@ -129,11 +173,6 @@ async function getTotalOnline(req,res){
 }
 
 //getTotalOnline();
-
-
-
-
-
 
 
 
