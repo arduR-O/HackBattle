@@ -6,7 +6,7 @@ import Tesseract from 'tesseract.js';
 import multer from 'multer';
 import { dirname } from "path";
 import { fileURLToPath } from "url";
-import bodyParser from "body-parser";
+//import bodyParser from "body-parser";
 import { S3Client, PutObjectCommand } from "@aws-sdk/client-s3";
 import dotenv from 'dotenv';
 dotenv.config();
@@ -30,7 +30,7 @@ const storage = multer.memoryStorage()
 const upload = multer({ storage: storage })
 const __dirname = dirname(fileURLToPath(import.meta.url));
 
-app.use(bodyParser.urlencoded({extended: true}));
+//app.use(bodyParser.urlencoded({extended: true}));
 
 app.get("/upload", async(req,res)=>{
   res.sendFile(__dirname+"/src/temp.html");
