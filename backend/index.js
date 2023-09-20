@@ -7,6 +7,24 @@ import multer from 'multer';
 import { dirname } from "path";
 import { fileURLToPath } from "url";
 import bodyParser from "body-parser";
+import { S3Client, PutObjectCommand } from "@aws-sdk/client-s3";
+import dotenv from 'dotenv';
+dotenv.config();
+
+const bucketName=process.env.BUCKET_NAME
+const bucketRegion=process.env.BUCKET_REGION
+const accessKey=process.env.ACCESS_KEY
+const secretAccesskey=process.env.SECRET_ACCESS_KEY
+
+const s3= new S3Client({
+  region: bucketRegion,
+  credentials:{
+    accessKeyId:accessKey,
+    secretAccessKey: secretAccesskey,
+  },
+  
+  
+})
 
 const storage = multer.memoryStorage()
 const upload = multer({ storage: storage })
@@ -19,8 +37,18 @@ app.get("/upload", async(req,res)=>{
 })
 
 app.post("/upload/offline",upload.single('image'),async(req,res)=>{
-  console.log("req.body: ", req.body);
-  console.log("req.file: ", req.file);
+   console.log("req.body: ", req.body);
+   console.log("req.file: ", req.file);
+   req.file.buffer
+  const params={
+    Bucket:bucketName,
+    Key: req.file.originalname,
+    Body: req.file.buffer,
+    ContentType: req.file.mimetype,
+  }
+  const command= new PutObjectCommand(params);
+  await s3.send(command)
+  res.send({})
 })
 
 function isInteger(str) {
