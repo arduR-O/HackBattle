@@ -1,0 +1,12 @@
+{
+  "stats": [
+    {
+      "healthcare": 1050,
+      "liesure": 2000,
+      "vacation": 5000,
+      "essentials": 10000,
+      "groceries": 2500,
+      "misc": 1750
+    }
+  ]
+}

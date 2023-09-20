@@ -6,7 +6,7 @@ const Bg = () => {
       viewBox="0 0 1440 1373"
       fill="none"
       xmlns="http://www.w3.org/2000/svg"
-      className="h-[100vh] w-[100vw] absolute -z-10"
+      className="h-[100vh] w-[100vw] -z-10 fixed"
     >
       <g filter="url(#filter0_f_1_2)">
         <path

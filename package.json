@@ -1,1 +1,8 @@
-{}
+{
+  "dependencies": {
+    "chart.js": "^4.4.0",
+    "json-server": "^0.17.3",
+    "react-chartjs-2": "^5.2.0",
+    "victory": "^36.6.11"
+  }
+}

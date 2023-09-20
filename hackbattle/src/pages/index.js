@@ -5,12 +5,14 @@ import { useState } from "react";
 import Bg from "../Components/Bg";
 import axios from 'axios';
 import { headers } from "../../next.config";
+import Link from "next/link";
 
 export default function Home() {
   const [send, setSend] = useState(false);
   // console.log(send);
   const [selectedFiles, setSelectedFiles] = useState(null);
-  const uploadURL = !setSend? "http://localhost:2000/upload/online" : "http://localhost:2000/upload/offline";
+  const [uploaded, setUploaded] = useState(false);
+  const uploadURL = send? "http://localhost:2000/upload/online" : "http://localhost:2000/upload/offline";
 
   const handleFileChange = (event) => {
     const files = event.target.files;
@@ -30,14 +32,14 @@ export default function Home() {
   };
 
   const handleUpload = async () => {
-    // let formData = new FormData();
-    // console.log(selectedFiles);
-    
-    // for (let i = 0; i < selectedFiles.length; i++) {
-    //   console.log('here')
-    //   formData.append("image", selectedFiles[i]);
-    // }
-    // console.log(formData);
+    let formData = new FormData();
+    console.log(selectedFiles);
+    for (let i = 0; i < selectedFiles.length; i++) {
+      console.log('here')
+      
+      formData.append("image",selectedFiles[i]);
+    }
+    console.log(formData);
     try {
       await axios.post(uploadURL, selectedFiles, {
         headers: {
@@ -46,6 +48,7 @@ export default function Home() {
         },
       });
       console.log("Files uploaded successfully");
+      setUploaded(true);
     } catch (error) {
       console.error("Error uploading files", error);
     }
@@ -94,6 +97,12 @@ export default function Home() {
           <input type="file" name="image" multiple onChange={handleFileChange} className="px-10 font-agdasima text-xl sm:text-2xl "/>
           <button onClick={handleUpload} className="bg-white font-agdasima text-black min-w-[13vw] mx-auto text-2xl">Upload Files</button>
         </div>
+        {/* <Link href={`${uploaded? ("/upload/categories"):("")}`}>
+        <div className={`px-10 py-2 rounded-full ${uploaded? ("bg-black text-white") : ("bg-slate-500 text-white")}  font-agdasima tracking-wide text-xl sm:text-3xl  md:text-4xl border-2 border-white mt-6`}>Submit</div>
+        </Link> */}
+        <Link href="/upload/online">
+        <div className={`px-10 py-2 rounded-full bg-black text-white font-agdasima tracking-wide text-xl sm:text-3xl  md:text-4xl border-2 border-white mt-6`}>Submit</div>
+        </Link>
       </main>
     </>
   );
