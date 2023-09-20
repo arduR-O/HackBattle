@@ -16,6 +16,7 @@ const bucketRegion=process.env.BUCKET_REGION
 const accessKey=process.env.ACCESS_KEY
 const secretAccesskey=process.env.SECRET_ACCESS_KEY
 
+
 const s3= new S3Client({
   region: bucketRegion,
   credentials:{
@@ -29,8 +30,19 @@ const s3= new S3Client({
 const storage = multer.memoryStorage()
 const upload = multer({ storage: storage })
 const __dirname = dirname(fileURLToPath(import.meta.url));
-
 //app.use(bodyParser.urlencoded({extended: true}));
+app.use((req, res, next) => {
+  res.header('Access-Control-Allow-Origin', 'http://localhost:3000');
+  res.header('Access-Control-Allow-Methods', 'GET, POST, PUT, DELETE');
+  res.header('Access-Control-Allow-Headers', 'Origin, X-Requested-With, Content-Type, Accept');
+  res.header('Access-Control-Allow-Credentials', 'true');
+  if (req.method === 'OPTIONS') {
+    // Handle preflight requests
+    res.sendStatus(200);
+  } else {
+    next();
+  }
+});
 
 app.get("/upload", async(req,res)=>{
   res.sendFile(__dirname+"/src/temp.html");
@@ -39,7 +51,7 @@ app.get("/upload", async(req,res)=>{
 app.post("/upload/offline",upload.single('image'),async(req,res)=>{
    console.log("req.body: ", req.body);
    console.log("req.file: ", req.file);
-   req.file.buffer
+  //  req.file.buffer
   const params={
     Bucket:bucketName,
     Key: req.file.originalname,
