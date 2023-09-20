@@ -3,31 +3,36 @@ import Image from "next/image";
 import Head from "next/head";
 import { useState } from "react";
 import Bg from "../Components/Bg";
-import axios from 'axios';
+import axios from "axios";
 import { headers } from "../../next.config";
 import Link from "next/link";
+// import { motion } from "framer-motion";
 
 export default function Home() {
   const [send, setSend] = useState(false);
   // console.log(send);
   const [selectedFiles, setSelectedFiles] = useState(null);
   const [uploaded, setUploaded] = useState(false);
-  const uploadURL = send? "http://localhost:2000/upload/online" : "http://localhost:2000/upload/offline";
+  const uploadURL = send
+    ? "http://localhost:2000/upload/online"
+    : "http://localhost:2000/upload/offline";
 
   const handleFileChange = (event) => {
     const files = event.target.files;
     const allowedFormats = ["image/png", "image/jpeg", "image/jpg"];
     const selectedFiles = [];
-  
+
     for (let i = 0; i < files.length; i++) {
       const file = files[i];
       if (allowedFormats.includes(file.type)) {
         selectedFiles.push(file);
       } else {
-        console.warn(`File ${file.name} is not a valid format (PNG, JPG, JPEG) and will be ignored.`);
+        console.warn(
+          `File ${file.name} is not a valid format (PNG, JPG, JPEG) and will be ignored.`
+        );
       }
     }
-  
+
     setSelectedFiles(selectedFiles);
   };
 
@@ -35,9 +40,9 @@ export default function Home() {
     let formData = new FormData();
     console.log(selectedFiles);
     for (let i = 0; i < selectedFiles.length; i++) {
-      console.log('here')
-      
-      formData.append("image",selectedFiles[i]);
+      console.log("here");
+
+      formData.append("image", selectedFiles[i]);
     }
     console.log(formData);
     try {
@@ -94,14 +99,31 @@ export default function Home() {
           </div>
         </div>
         <div className="border-2 border-white mt-10 flex flex-col justify-between h-[40vh] py-5 bg-black/40 rounded-2xl border-dashed w-[50vw] sm:w-auto justify-items-center">
-          <input type="file" name="image" multiple onChange={handleFileChange} className="px-10 font-agdasima text-xl sm:text-2xl "/>
-          <button onClick={handleUpload} className="bg-white font-agdasima text-black min-w-[13vw] mx-auto text-2xl">Upload Files</button>
+          <input
+            type="file"
+            name="image"
+            multiple
+            onChange={handleFileChange}
+            className="px-10 font-agdasima text-xl sm:text-2xl "
+          />
+          <button
+            onClick={handleUpload}
+            className="bg-white font-agdasima text-black min-w-[13vw] mx-auto text-2xl"
+          >
+            Upload Files
+          </button>
         </div>
         {/* <Link href={`${uploaded? ("/upload/categories"):("")}`}>
         <div className={`px-10 py-2 rounded-full ${uploaded? ("bg-black text-white") : ("bg-slate-500 text-white")}  font-agdasima tracking-wide text-xl sm:text-3xl  md:text-4xl border-2 border-white mt-6`}>Submit</div>
         </Link> */}
         <Link href="/upload/online">
-        <div className={`px-10 py-2 rounded-full bg-black text-white font-agdasima tracking-wide text-xl sm:text-3xl  md:text-4xl border-2 border-white mt-6`}>Submit</div>
+          <div
+            className={`px-10 py-2 rounded-full bg-black text-white font-agdasima tracking-wide text-xl sm:text-3xl  md:text-4xl border-2 border-white mt-6`}
+            whileTap={{ scale: 0.9 }}
+            whileHover={{ scale: 1.1 }}
+          >
+            Submit
+          </div>
         </Link>
       </main>
     </>
